@@ -1,0 +1,16 @@
+import { Router } from "express";
+import { formatDiagnostic } from "typescript";
+import { createDependencies } from "../container/container";
+
+const router = Router()
+
+const {userController} = createDependencies()
+
+router.post('/signup', userController.createUser.bind(userController))
+router.post('/verify', userController.verifyOTP.bind(userController))
+router.post('/login', userController.loginUser.bind(userController))
+router.post('/logout', userController.logoutUser.bind(userController))
+
+router.post('/admin/login', userController.loginAdmin.bind(userController))
+
+export default router;
