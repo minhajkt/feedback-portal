@@ -1,5 +1,14 @@
-import mongoose, { Schema } from "mongoose";
-import { IUser } from "./IUser";
+
+
+import mongoose, { Document, Schema } from "mongoose";
+
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password: string;
+  isVerified: boolean;
+  role: "user" | "admin";
+}
 
 const UserSchema: Schema = new Schema(
   {

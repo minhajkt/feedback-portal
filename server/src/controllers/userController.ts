@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { IUserService } from "../services/user/IUserService";
-import { IUser } from "../models/IUser";
+import { IUser } from "../models/UserModel";
 
 export class UserController {
     private userService: IUserService
@@ -52,7 +52,14 @@ export class UserController {
             const {email, password} = req.body
             const {user, token} = await this.userService.loginUser(email, password, 'user')
             
-            res.status(200).json({message : 'Login success', user, token})
+            res.cookie('accessToken', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: "strict",
+                maxAge: 60 * 60 * 1000
+            })
+
+            res.status(200).json({message : 'Login success', user})
         } catch (error) {
             res
               .status(500)
@@ -75,6 +82,11 @@ export class UserController {
 
     async logoutUser(req: Request, res: Response) : Promise<void> {
         try {
+            res.clearCookie("accessToken", {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "strict",
+            });
             res.status(200).json({message : "Logout success"})
         } catch (error) {
             res.status(500).json({error : (error as Error).message})

@@ -1,5 +1,4 @@
-import { IUser } from "../../models/IUser";
-import userModel from "../../models/UserModel";
+import userModel, { IUser } from "../../models/UserModel";
 import { BaseRepository } from "../common/BaseRepository";
 import { IUserRepository } from "./IUserRepository";
 

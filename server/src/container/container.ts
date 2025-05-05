@@ -1,5 +1,8 @@
+import { FeedbackController } from "../controllers/FeedbackController";
 import { UserController } from "../controllers/userController";
+import { FeedbackRepository } from "../repositories/feedback/FeedbackRepository";
 import { UserRepository } from "../repositories/user/UserRepository";
+import { FeedbackService } from "../services/feedback/FeedbackService";
 import { UserService } from "../services/user/UserService";
 
 export function createDependencies() {
@@ -7,5 +10,9 @@ export function createDependencies() {
   const userService = new UserService(userRepository);
   const userController = new UserController(userService);
 
-  return { userController };
+  const feedbackRepository = new FeedbackRepository()
+  const feedbackService = new FeedbackService(feedbackRepository)
+  const feedbackController = new FeedbackController(feedbackService)
+
+  return { userController, feedbackController };
 }

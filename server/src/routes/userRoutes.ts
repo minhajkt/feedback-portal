@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { formatDiagnostic } from "typescript";
 import { createDependencies } from "../container/container";
+import { isAdmin } from "../middlewares/isAdmin";
 
 const router = Router()
 

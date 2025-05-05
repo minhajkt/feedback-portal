@@ -1,4 +1,4 @@
-import { IUser } from "../../models/IUser";
+import { IUser } from "../../models/UserModel";
 import { IUserRepository } from "../../repositories/user/IUserRepository";
 import { UserRepository } from "../../repositories/user/UserRepository";
 import { comparePassword, hashPassword } from "../../utils/hashingotp";
@@ -88,6 +88,7 @@ export class UserService implements IUserService {
       }
 
       const token = generateToken({ id: user?._id, email: user?.email, role : user?.role });
+    //   console.log(token)
       return {user, token};
     } catch (error) {
       console.error("Login error:", error);
