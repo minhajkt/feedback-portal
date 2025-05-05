@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TextField, Button, Typography, Box, Paper, Modal, CircularProgress } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +10,7 @@ const Singup = () => {
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
     const [loading, setLoading] = useState<boolean>(false);
     const [openModal, setOpenModal] = useState<boolean>(false)
     const [otp, setOtp] = useState<string>('')
@@ -26,9 +28,16 @@ const Singup = () => {
                 // navigate('/login')
                 setOpenModal(true)
             }
-        } catch (error) {
-            console.error('Sign up failed',error);
-            setError((error as Error).message)
+        } catch (error:any) {
+            if (error.response?.data?.errors) {
+              const extractedErrors: { [key: string]: string } = {};
+              error.response.data.errors.forEach((error: any) => {
+                extractedErrors[error.path] = error.msg;
+              });
+              setFieldErrors(extractedErrors);
+            } else {
+              console.error("Unexpected signup error", error);
+            }
         }finally{
             setLoading(false)
         }
@@ -98,7 +107,8 @@ const Singup = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             margin="normal"
-            required
+            error={!!fieldErrors.name}
+            helperText={fieldErrors.name}
             sx={{ mb: 1 }}
           />
           <TextField
@@ -108,7 +118,8 @@ const Singup = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
-            required
+            error={!!fieldErrors.email}
+            helperText={fieldErrors.email}
             sx={{ mb: 3 }}
           />
 
@@ -119,7 +130,8 @@ const Singup = () => {
             fullWidth
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
+            error={!!fieldErrors.password}
+            helperText={fieldErrors.password}
             sx={{ mb: 3 }}
           />
           <TextField
@@ -129,7 +141,8 @@ const Singup = () => {
             fullWidth
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            required
+            error={!!fieldErrors.confirmPassword}
+            helperText={fieldErrors.confirmPassword}
             sx={{ mb: 3 }}
           />
 
@@ -151,7 +164,7 @@ const Singup = () => {
               },
             }}
           >
-            {loading ? <CircularProgress color="info"/> : "Signup"}
+            {loading ? <CircularProgress color="info" /> : "Signup"}
           </Button>
 
           <Box

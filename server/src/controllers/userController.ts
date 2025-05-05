@@ -12,13 +12,6 @@ export class UserController {
         try {
             const { name, email, password, confirmPassword } = req.body;
 
-            if (!name || !email || !password || !confirmPassword) {
-              res
-                .status(400)
-                .json({ message: "Name, email, password and confirm password  are required" });
-              return;
-            }
-
             const userData: Partial<IUser> = { name, email, password };
             const user = await this.userService.createUser(userData, confirmPassword)
             res.status(201).json({message : "User created successfully", user})

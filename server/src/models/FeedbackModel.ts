@@ -5,7 +5,7 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface IFeedback extends Document {
   userId: string;
   text: string
-  rating: string
+  rating: number
   image: string
   reply: string
   createdAt: Date

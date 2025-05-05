@@ -1,44 +1,62 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { TextField, Button, Typography, Box, Paper, Snackbar } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Paper,
+  Snackbar,
+} from "@mui/material";
 import { useAuth } from "../context/AuthContext";
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import { loginUser } from "../services/authService";
 import { useLocation, useNavigate } from "react-router-dom";
 
-    const Login = () => {
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
-    const { user, setUser } = useAuth();
-    const location = useLocation()
-    const [snackbar, setSnackbar] = useState<boolean>(location.state?.otpSuccess || false);
+const Login = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
-    const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
+  const { user, setUser } = useAuth();
+  const location = useLocation();
+  const [snackbar, setSnackbar] = useState<boolean>(
+    location.state?.otpSuccess || false
+  );
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setLoading(true);
-        try {
-        const data = await loginUser(email, password);
-        if (data) {
-            setUser(data.user);
-            if(data.user.role === 'user') {
-                navigate("/home");
-            }else {
-                navigate('/admin')
-            }
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const data = await loginUser(email, password);
+      if (data) {
+        setUser(data.user);
+        if (data.user.role === "user") {
+          navigate("/home");
+        } else {
+          navigate("/admin");
         }
-        } catch (error) {
-        console.error("Login failed", error);
-        setError("Invalid email or password");
-        } finally {
-        setLoading(false);
-        }
-    };
-
-
+      }
+    } catch (error:any) {
+      if (error.response?.data?.errors) {
+        const extractedErrors: { [key: string]: string } = {};
+        error.response.data.errors.forEach((error: any) => {
+          extractedErrors[error.path] = error.msg;
+        });
+        setFieldErrors(extractedErrors);
+      } else {
+        setError(error.response?.data?.message || error.response?.data?.error);
+        console.error("Unexpected login error", error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box
@@ -86,7 +104,8 @@ import { useLocation, useNavigate } from "react-router-dom";
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
-            required
+            error={!!fieldErrors.email}
+            helperText={fieldErrors.email}
             sx={{ mb: 3 }}
           />
 
@@ -97,7 +116,8 @@ import { useLocation, useNavigate } from "react-router-dom";
             fullWidth
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
+            error={!!fieldErrors.password}
+            helperText={fieldErrors.password}
             sx={{ mb: 3 }}
           />
 
@@ -105,6 +125,7 @@ import { useLocation, useNavigate } from "react-router-dom";
             type="submit"
             variant="contained"
             fullWidth
+            disabled={loading}
             sx={{
               py: 1.5,
               textTransform: "none",
